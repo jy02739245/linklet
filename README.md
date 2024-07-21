@@ -2,7 +2,7 @@
 
 一个使用 Cloudflare Pages 创建的 URL 缩短器
 
-*演示站点* : [t.xiaowangye.org](https://t.xiaowangye.org), [linklet.pages.dev](https://linklet.pages.dev)
+*演示站点* : [短链.us.kg](https://xn--s7y033d.us.kg)   
 
 ### 1.利用 Cloudflare Pages 部署
 
@@ -77,3 +77,6 @@ Content-Type: application/json
   "link": "http://wss.so/<slug>"
 }
 ```
+
+## 致谢
+[HarrisonWang ](https://github.com/HarrisonWang/linklet)、[x-dr](https://github.com/x-dr/short)
