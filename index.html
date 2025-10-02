@@ -246,7 +246,7 @@
           const body = { longUrl: this.url }
           if (this.slug) body.slug = this.slug
 
-          fetch('/short', {
+          fetch('/create', {
             method: 'post',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify(body)
