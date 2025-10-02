@@ -53,9 +53,26 @@ export async function onRequest(context) {
         'Access-Control-Max-Age': '86400', // 24 hours
     };
     if (!longUrl) return Response.json({ message: 'Missing required parameter: longUrl.' });
+    let finalLongUrl = longUrl;  // 新增变量保存处理后的URL
 
+    // 检查 longUrl 是否是 base64 字符串（简单判断：只能包含 A-Z, a-z, 0-9, +, /, =）
+    const base64Pattern = /^[A-Za-z0-9+/=]+$/;
+    if (longUrl && base64Pattern.test(longUrl)) {
+        try {
+            // 尝试 base64 解码
+            const decoded = atob(longUrl);
+    
+            // 如果解码后是个 http/https URL，就替换掉
+            if (/^https?:\/\/.{3,}/.test(decoded)) {
+                finalLongUrl = decoded;
+            }
+        } catch (err) {
+            // 如果解码失败，就忽略，继续用原始 longUrl
+            console.log("Base64 decode failed, fallback to original longUrl:", err.message);
+        }
+    }
     // url格式检查
-    if (!/^https?:\/\/.{3,}/.test(longUrl)) {
+    if (!/^https?:\/\/.{3,}/.test(finalLongUrl)) {
         return Response.json({ message: 'Illegal format: longUrl.' },{
             headers: corsHeaders,
             status: 400
@@ -81,7 +98,7 @@ export async function onRequest(context) {
             const existUrl = await env.DB.prepare(`SELECT url as existUrl FROM links where slug = '${slug}'`).first()
 
             // url & slug 是一样的。
-            if (existUrl && existUrl.existUrl === longUrl) {
+            if (existUrl && existUrl.existUrl === finalLongUrl) {
                 return Response.json({ slug, link: `${origin}/${slug2}` },{
                     headers: corsHeaders,
                     status: 200
@@ -98,7 +115,7 @@ export async function onRequest(context) {
         }
 
         // 目标 url 已存在
-        const existSlug = await env.DB.prepare(`SELECT slug as existSlug FROM links where url = '${longUrl}'`).first()
+        const existSlug = await env.DB.prepare(`SELECT slug as existSlug FROM links where url = '${finalLongUrl}'`).first()
 
         // url 存在且没有自定义 slug
         if (existSlug && !slug) {
@@ -108,7 +125,7 @@ export async function onRequest(context) {
             
             })
         }
-        const bodyUrl = new URL(longUrl);
+        const bodyUrl = new URL(finalLongUrl);
 
         if (bodyUrl.hostname === originurl.hostname) {
             return Response.json({ message: 'You cannot shorten a link to the same domain.' }, {
@@ -122,7 +139,7 @@ export async function onRequest(context) {
         // console.log('slug', slug2);
 
         const info = await env.DB.prepare(`INSERT INTO links (url, slug, ip, status, ua, create_time) 
-        VALUES ('${longUrl}', '${slug2}', '${clientIP}',1, '${userAgent}', '${formattedDate}')`).run()
+        VALUES ('${finalLongUrl}', '${slug2}', '${clientIP}',1, '${userAgent}', '${formattedDate}')`).run()
 
         return Response.json({ slug: slug2, link: `${origin}/${slug2}` },{
             headers: corsHeaders,
