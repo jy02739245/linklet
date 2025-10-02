@@ -243,13 +243,15 @@
           this.alert = null
           this.loading = true
 
-          const body = { longUrl: this.url }
-          if (this.slug) body.slug = this.slug
-
+          
+          const formData = new FormData();
+          formData.append("longUrl", btoa(this.url));
+          formData.append("longUrl", this.url);
+          if (this.slug) formData.append("shortKey",this.slug)
           fetch('/short', {
             method: 'post',
             headers: { 'content-type': 'application/json' },
-            body: JSON.stringify(body)
+            body: formData
           })
             .then(res => res.json())
             .then(res => {
@@ -259,7 +261,7 @@
                 return
               }
 
-              this.url = res.link
+              this.url = res.ShortUrl
 
               $nextTick(() => {
                 $refs.url.select()
