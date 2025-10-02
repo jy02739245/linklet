@@ -1,5 +1,5 @@
 /**
- * @api {post} /create Create
+ * @api {post} /short Create
  */
 
 // Path: functions/create.js
