@@ -46,7 +46,9 @@ export async function onRequest(context) {
     };
     const timedata = new Date();
     const formattedDate = new Intl.DateTimeFormat('zh-CN', options).format(timedata);
-    const { longUrl, slug } = await request.json();
+    const formData = await request.formData();
+    const longUrl = formData.get("longUrl");
+    const slug = formData.get("shortKey");
     const corsHeaders = {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Content-Type',
@@ -73,7 +75,7 @@ export async function onRequest(context) {
     }
     // url格式检查
     if (!/^https?:\/\/.{3,}/.test(finalLongUrl)) {
-        return Response.json({ message: 'Illegal format: longUrl.' },{
+        return Response.json({ Code: 0,Message: 'Illegal format: longUrl.' },{
             headers: corsHeaders,
             status: 400
         })
@@ -81,7 +83,7 @@ export async function onRequest(context) {
 
     // 自定义slug长度检查 2<slug<10 是否不以文件后缀结尾
     if (slug && (slug.length < 2 || slug.length > 10 || /.+\.[a-zA-Z]+$/.test(slug))) {
-        return Response.json({ message: 'Illegal length: slug, (>= 2 && <= 10), or not ending with a file extension.' },{
+        return Response.json({ Code: 0, Message: 'Illegal length: slug, (>= 2 && <= 10), or not ending with a file extension.' },{
             headers: corsHeaders,
             status: 400
         
@@ -99,7 +101,7 @@ export async function onRequest(context) {
 
             // url & slug 是一样的。
             if (existUrl && existUrl.existUrl === finalLongUrl) {
-                return Response.json({ slug, link: `${origin}/${slug2}` },{
+                return Response.json({Code: 0, slug, ShortUrl: `${origin}/${slug2}` },{
                     headers: corsHeaders,
                     status: 200
                 })
@@ -107,7 +109,7 @@ export async function onRequest(context) {
 
             // slug 已存在
             if (existUrl) {
-                return Response.json({ message: 'Slug already exists.' },{
+                return Response.json({Code: 0, Message: 'Slug already exists.' },{
                     headers: corsHeaders,
                     status: 200  
                 })
@@ -119,7 +121,7 @@ export async function onRequest(context) {
 
         // url 存在且没有自定义 slug
         if (existSlug && !slug) {
-            return Response.json({ slug: existSlug.existSlug, link: `${origin}/${existSlug.existSlug}` },{
+            return Response.json({Code: 0, slug: existSlug.existSlug, ShortUrl: `${origin}/${existSlug.existSlug}` },{
                 headers: corsHeaders,
                 status: 200
             
@@ -128,7 +130,7 @@ export async function onRequest(context) {
         const bodyUrl = new URL(finalLongUrl);
 
         if (bodyUrl.hostname === originurl.hostname) {
-            return Response.json({ message: 'You cannot shorten a link to the same domain.' }, {
+            return Response.json({Code: 0, Message: 'You cannot shorten a link to the same domain.' }, {
                 headers: corsHeaders,
                 status: 400
             })
@@ -141,13 +143,13 @@ export async function onRequest(context) {
         const info = await env.DB.prepare(`INSERT INTO links (url, slug, ip, status, ua, create_time) 
         VALUES ('${finalLongUrl}', '${slug2}', '${clientIP}',1, '${userAgent}', '${formattedDate}')`).run()
 
-        return Response.json({ slug: slug2, link: `${origin}/${slug2}` },{
+        return Response.json({ Code: 1, slug: slug2, ShortUrl: `${origin}/${slug2}` },{
             headers: corsHeaders,
             status: 200
         })
     } catch (e) {
         // console.log(e);
-        return Response.json({ message: e.message },{
+        return Response.json({ Code: 0,Message: e.message },{
             headers: corsHeaders,
             status: 500
         })
