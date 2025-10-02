@@ -101,7 +101,7 @@ export async function onRequest(context) {
 
             // url & slug 是一样的。
             if (existUrl && existUrl.existUrl === finalLongUrl) {
-                return Response.json({Code: 1, slug, ShortUrl: `${origin}/${slug2}` },{
+                return Response.json({Code: 1, slug, ShortUrl: `${origin}/${slug}` },{
                     headers: corsHeaders,
                     status: 200
                 })
