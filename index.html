@@ -246,7 +246,6 @@
           
           const formData = new FormData();
           formData.append("longUrl", btoa(this.url));
-          formData.append("longUrl", this.url);
           if (this.slug) formData.append("shortKey",this.slug)
           fetch('/short', {
             method: 'post',
