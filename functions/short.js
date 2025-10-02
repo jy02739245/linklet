@@ -101,7 +101,7 @@ export async function onRequest(context) {
 
             // url & slug 是一样的。
             if (existUrl && existUrl.existUrl === finalLongUrl) {
-                return Response.json({Code: 0, slug, ShortUrl: `${origin}/${slug2}` },{
+                return Response.json({Code: 1, slug, ShortUrl: `${origin}/${slug2}` },{
                     headers: corsHeaders,
                     status: 200
                 })
@@ -121,7 +121,7 @@ export async function onRequest(context) {
 
         // url 存在且没有自定义 slug
         if (existSlug && !slug) {
-            return Response.json({Code: 0, slug: existSlug.existSlug, ShortUrl: `${origin}/${existSlug.existSlug}` },{
+            return Response.json({Code: 1, slug: existSlug.existSlug, ShortUrl: `${origin}/${existSlug.existSlug}` },{
                 headers: corsHeaders,
                 status: 200
             
