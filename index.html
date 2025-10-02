@@ -249,7 +249,6 @@
           if (this.slug) formData.append("shortKey",this.slug)
           fetch('/short', {
             method: 'post',
-            headers: { 'content-type': 'application/json' },
             body: formData
           })
             .then(res => res.json())
