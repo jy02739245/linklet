@@ -256,8 +256,8 @@
             .then(res => res.json())
             .then(res => {
               this.loading = false
-              if (res.message) {
-                this.alert = { type: 'error', message: res.message }
+              if (res.Message) {
+                this.alert = { type: 'error', message: res.Message }
                 return
               }
 
